@@ -6,6 +6,7 @@
 #include "proc.h"
 #include "defs.h"
 
+
 struct cpu cpus[NCPU];
 
 struct proc proc[NPROC];
@@ -41,6 +42,26 @@ proc_mapstacks(pagetable_t kpgtbl)
     uint64 va = KSTACK((int) (p - proc));
     kvmmap(kpgtbl, va, (uint64)pa, PGSIZE, PTE_R | PTE_W);
   }
+}
+#define NUM_SYS_CALLS 23  // Adjust to the actual number of system calls
+
+static int syscall_counts[NUM_SYS_CALLS] = {0};  // Array to keep track of syscall counts
+
+// Function to increment the system call count
+void increment_syscall_count(int syscall_number) {
+    if (syscall_number >= 0 && syscall_number < NUM_SYS_CALLS) {
+        syscall_counts[syscall_number]++;
+    }
+}
+
+// Function to get the count of a specific system call
+int sys_getsyscallcount(void) {
+    int syscall_number = proc->tf->eax;  // Get the syscall number from the process context
+    if (syscall_number >= 0 && syscall_number < NUM_SYS_CALLS) {
+        return syscall_counts[syscall_number];
+    } else {
+        return -1;  // Invalid system call number
+    }
 }
 
 // initialize the proc table.
@@ -692,4 +713,18 @@ procdump(void)
     printf("%d %s %s", p->pid, state, p->name);
     printf("\n");
   }
+}
+
+static int syscall_counts[NUM_SYS_CALLS] = {0};  // NUM_SYS_CALLS should be replaced with the actual number of syscalls
+
+// Function to increment system call count
+void increment_syscall_count(int syscall_number) {
+    if (syscall_number >= 0 && syscall_number < NUM_SYS_CALLS) {
+        syscall_counts[syscall_number]++;
+    }
+}
+
+// Add this function to get the count of system calls
+int sys_getsyscallcount(void) {
+    return syscall_counts[proc->syscall_number];
 }

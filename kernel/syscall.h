@@ -20,3 +20,6 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+// In syscall.h
+#define SYS_getsyscallcount 22  // Define an available syscall number
+
